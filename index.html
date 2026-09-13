@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Paper Library</title>
+<style>
+  :root {
+    --bg: #f4f5f7;
+    --card-bg: #ffffff;
+    --border: #d8dce1;
+    --text: #1c2126;
+    --text-muted: #5b6470;
+    --accent: #2f6fed;
+    --accent-hover: #2559c7;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 40px 18px 60px; }
+  header { text-align: center; margin-bottom: 28px; }
+  header h1 { font-size: 1.4rem; margin: 0 0 6px; }
+  header p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 1rem;
+    background: var(--bg);
+    color: var(--text);
+    font-family: inherit;
+  }
+  .paper-meta {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+    font-size: 0.9rem;
+  }
+  .paper-meta .school { font-weight: 600; margin-bottom: 4px; }
+  .paper-meta .tags {
+    display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0;
+  }
+  .tag {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 2px 10px;
+  }
+  .paper-meta .desc { color: var(--text-muted); font-size: 0.85rem; margin-top: 8px; }
+  button {
+    font-family: inherit;
+    font-size: 0.95rem;
+    padding: 12px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background: var(--accent);
+    color: #fff;
+    width: 100%;
+  }
+  button:hover { background: var(--accent-hover); }
+  .empty-hint { color: var(--text-muted); font-size: 0.85rem; text-align: center; margin-top: 20px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Test Paper Library</h1>
+    <p>Choose a digitized paper below to attempt it.</p>
+  </header>
+
+  <div class="card">
+    <div class="field">
+      <label for="paper-select">Available papers</label>
+      <select id="paper-select"></select>
+    </div>
+
+    <div class="paper-meta" id="paper-meta"></div>
+
+    <button id="btn-open">Start This Paper</button>
+  </div>
+
+  <p class="empty-hint" id="empty-hint" hidden>No papers found. Add an entry to papers.js once a new paper is digitized.</p>
+</div>
+
+<script src="papers.js"></script>
+<script>
+(function () {
+  const select = document.getElementById("paper-select");
+  const meta = document.getElementById("paper-meta");
+  const btn = document.getElementById("btn-open");
+  const emptyHint = document.getElementById("empty-hint");
+
+  if (typeof PAPERS === "undefined" || PAPERS.length === 0) {
+    document.querySelector(".card").hidden = true;
+    emptyHint.hidden = false;
+    return;
+  }
+
+  PAPERS.forEach((p, i) => {
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = p.title;
+    select.appendChild(opt);
+  });
+
+  function renderMeta() {
+    const p = PAPERS[select.value];
+    meta.innerHTML = `
+      <div class="school">${p.school}</div>
+      <div class="tags">
+        <span class="tag">${p.level}</span>
+        <span class="tag">${p.subject}</span>
+        <span class="tag">${p.questionCount} questions</span>
+      </div>
+      <div class="desc">${p.description}</div>
+    `;
+  }
+
+  select.addEventListener("change", renderMeta);
+  renderMeta();
+
+  btn.addEventListener("click", () => {
+    const p = PAPERS[select.value];
+    window.location.href = p.path;
+  });
+})();
+</script>
+</body>
+</html>

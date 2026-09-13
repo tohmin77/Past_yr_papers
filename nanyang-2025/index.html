@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2025 Nanyang P3 Science EOY Exam</title>
+<style>
+  :root {
+    --bg: #f4f5f7;
+    --card-bg: #ffffff;
+    --border: #d8dce1;
+    --text: #1c2126;
+    --text-muted: #5b6470;
+    --accent: #2f6fed;
+    --accent-hover: #2559c7;
+    --correct: #1f9254;
+    --incorrect: #d1453b;
+    --pending: #b8860b;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 24px 18px 60px;
+  }
+  header.app-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  header.app-header h1 {
+    font-size: 1.25rem;
+    margin: 0 0 4px;
+  }
+  header.app-header p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .field { margin-bottom: 14px; }
+  .field label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .field input[type=text] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 1rem;
+    background: var(--bg);
+    color: var(--text);
+  }
+  button {
+    font-family: inherit;
+    font-size: 0.92rem;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background: var(--accent);
+    color: #fff;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.secondary {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  button.secondary:hover { background: var(--bg); }
+  button.link {
+    background: none;
+    color: var(--accent);
+    padding: 4px 0;
+    text-decoration: underline;
+  }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .progress-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .progress-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.2s ease;
+  }
+  .q-marks {
+    display: inline-block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 2px 10px;
+    margin-bottom: 10px;
+  }
+  .q-prompt { font-size: 1.02rem; margin: 0 0 14px; white-space: pre-line; }
+  .q-body { font-size: 0.98rem; white-space: pre-line; margin: 0 0 16px; }
+  .q-image {
+    max-width: 100%;
+    display: block;
+    margin: 0 auto 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .ref-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 0.9rem; }
+  .ref-table th, .ref-table td { border: 1px solid var(--border); padding: 8px 10px; text-align: center; }
+  .ref-table th { background: var(--bg); }
+  .option-list { list-style: none; padding: 0; margin: 0; }
+  .option-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px;
+    margin-bottom: 8px; cursor: pointer;
+  }
+  .option-row:hover { border-color: var(--accent); }
+  .option-row.selected { border-color: var(--accent); background: #eaf1fe; }
+  .option-row input { flex-shrink: 0; }
+  .option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+  @media (max-width: 480px) { .option-grid { grid-template-columns: 1fr; } }
+  .option-card { border: 1px solid var(--border); border-radius: 8px; padding: 10px; cursor: pointer; text-align: center; }
+  .option-card:hover { border-color: var(--accent); }
+  .option-card.selected { border-color: var(--accent); background: #eaf1fe; }
+  .option-card img { max-width: 100%; max-height: 160px; margin-bottom: 6px; }
+  table.selectable { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  table.selectable th, table.selectable td { border: 1px solid var(--border); padding: 8px 10px; text-align: center; }
+  table.selectable th { background: var(--bg); }
+  table.selectable tr.selected td { background: #eaf1fe; }
+  table.selectable td.radio-cell { width: 36px; }
+  .part-block { border-top: 1px solid var(--border); padding-top: 16px; margin-top: 16px; }
+  .part-block:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
+  .part-label { font-weight: 600; margin-bottom: 8px; }
+  textarea, input.short-text {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px;
+    font-family: inherit; font-size: 0.95rem; background: var(--bg); color: var(--text);
+  }
+  textarea { min-height: 90px; resize: vertical; }
+  .nav-row { display: flex; justify-content: space-between; margin-top: 20px; }
+  .review-item { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .review-item:last-child { border-bottom: none; }
+  .review-q { font-weight: 600; font-size: 0.9rem; }
+  .review-ans { color: var(--text-muted); font-size: 0.88rem; margin-top: 2px; white-space: pre-line; }
+  .review-ans.unanswered { color: var(--pending); }
+  .link-btn { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 0.85rem; padding: 4px 0; flex-shrink: 0; }
+  .score-box { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
+  .score-box:last-child { border-bottom: none; font-weight: 600; }
+  .model-answer { background: var(--bg); border-radius: 8px; padding: 10px 12px; font-size: 0.88rem; margin-top: 6px; }
+  .model-answer strong { color: var(--correct); }
+  .hint { font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; }
+  .qa-review-item { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; }
+  .qa-review-item.correct { border-left: 4px solid var(--correct); }
+  .qa-review-item.incorrect { border-left: 4px solid var(--incorrect); }
+  .qa-review-item.ungraded { border-left: 4px solid var(--pending); }
+  .qa-review-head { display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 0.92rem; margin-bottom: 6px; }
+  .qa-badge { font-size: 0.75rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; }
+  .qa-badge.correct { background: #e4f6ec; color: var(--correct); }
+  .qa-badge.incorrect { background: #fbe9e8; color: var(--incorrect); }
+  .qa-badge.ungraded { background: #fbf1de; color: var(--pending); }
+  .qa-line { font-size: 0.88rem; margin: 3px 0; }
+  .qa-line .qa-your { color: var(--incorrect); }
+  .qa-line .qa-correct { color: var(--correct); }
+  .qa-explanation { background: var(--bg); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; margin-top: 8px; color: var(--text-muted); }
+  .top-actions { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+  [hidden] { display: none !important; }
+
+  /* ---------------- Print styles ---------------- */
+  .print-only { display: none; }
+  @media print {
+    body > .wrap > *:not(.print-only-wrap) { display: none !important; }
+    .print-only-wrap { display: block !important; }
+    .print-only { display: block !important; }
+    .print-q { page-break-inside: avoid; border-bottom: 1px solid #ccc; padding: 10px 0; }
+    .print-q img { max-width: 100%; }
+    .print-title { text-align: center; margin-bottom: 4px; }
+    .print-subtitle { text-align: center; color: #555; margin-bottom: 20px; font-size: 0.9rem; }
+  }
+  .print-q { margin-bottom: 14px; }
+  .print-q-head { font-weight: 700; margin-bottom: 6px; }
+  .print-answer-line { font-size: 0.92rem; margin: 3px 0; }
+  .print-correct { color: #1f9254; font-weight: 600; }
+  .print-incorrect { color: #d1453b; font-weight: 600; }
+  .print-explanation { background: #f4f5f7; border-radius: 6px; padding: 8px 10px; font-size: 0.85rem; margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="app-header">
+    <h1>2025 Nanyang P3 Science EOY Exam</h1>
+    <p>Paper 1: 22 MCQs &middot; Paper 2: 9 structured questions</p>
+  </header>
+
+  <div class="top-actions">
+    <button class="link" id="btn-view-key">View / Print Answer Key</button>
+  </div>
+
+  <div id="screen-start" class="card">
+    <div class="field">
+      <label for="input-name">Name (optional)</label>
+      <input type="text" id="input-name" placeholder="Your name">
+    </div>
+    <div class="field">
+      <label for="input-class">Class (optional)</label>
+      <input type="text" id="input-class" placeholder="e.g. P3/1">
+    </div>
+    <p class="hint">This paper has no official school answer key. All suggested answers and explanations are generated for self-review, not an authoritative marking scheme.</p>
+    <button id="btn-start">Start Test</button>
+    <button id="btn-resume" class="secondary" hidden style="margin-left:8px;">Resume previous attempt</button>
+  </div>
+
+  <div id="screen-quiz" class="card" hidden>
+    <div class="progress-row">
+      <span id="progress-label">Question 1 of 31</span>
+      <span id="progress-marks"></span>
+    </div>
+    <div class="progress-bar"><div class="progress-bar-fill" id="progress-fill"></div></div>
+    <div id="question-container"></div>
+    <div class="nav-row">
+      <button id="btn-back" class="secondary">Back</button>
+      <button id="btn-next">Next</button>
+    </div>
+  </div>
+
+  <div id="screen-review" class="card" hidden>
+    <h2 style="margin-top:0;">Review your answers</h2>
+    <p class="hint">Check your answers below. Click "Change" to go back and edit any question.</p>
+    <div id="review-list"></div>
+    <div class="nav-row">
+      <button id="btn-review-back" class="secondary">Back to test</button>
+      <button id="btn-submit">Submit test</button>
+    </div>
+  </div>
+
+  <div id="screen-results" class="card" hidden>
+    <h2 style="margin-top:0;">Results</h2>
+    <div id="results-summary"></div>
+    <div class="btn-row" style="margin:16px 0;">
+      <button id="btn-print-report">Print my completed paper (PDF)</button>
+      <button id="btn-view-key-2" class="secondary">View / Print Answer Key</button>
+    </div>
+    <div id="results-section1" style="margin-top:10px;"></div>
+    <div id="results-written" style="margin-top:20px;"></div>
+    <div class="nav-row">
+      <button id="btn-restart" class="secondary">Restart test</button>
+      <span></span>
+    </div>
+  </div>
+
+  <!-- Printable areas: hidden on screen, shown only when printing -->
+  <div class="print-only-wrap print-only">
+    <div id="print-report"></div>
+    <div id="print-answerkey"></div>
+  </div>
+</div>
+
+<script src="questions.js"></script>
+<script>
+(function () {
+  const STORAGE_KEY = "nanyang-2025-app:state";
+
+  const screens = {
+    start: document.getElementById("screen-start"),
+    quiz: document.getElementById("screen-quiz"),
+    review: document.getElementById("screen-review"),
+    results: document.getElementById("screen-results")
+  };
+
+  let state = {
+    studentName: "",
+    studentClass: "",
+    currentIndex: 0,
+    answers: {},
+    screen: "start"
+  };
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) { /* ignore */ }
+    return null;
+  }
+
+  function saveState() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
+  }
+
+  function showScreen(name) {
+    Object.keys(screens).forEach(k => screens[k].hidden = (k !== name));
+    state.screen = name;
+    saveState();
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str == null ? "" : str;
+    return div.innerHTML;
+  }
+
+  // ---------- Rendering a question (quiz screen) ----------
+
+  function renderImage(src) {
+    const img = document.createElement("img");
+    img.src = src;
+    img.className = "q-image";
+    img.alt = "diagram";
+    return img;
+  }
+
+  function renderRefTable(table) {
+    const t = document.createElement("table");
+    t.className = "ref-table";
+    const thead = document.createElement("thead");
+    const trh = document.createElement("tr");
+    table.headers.forEach(h => {
+      const th = document.createElement("th");
+      th.textContent = h;
+      trh.appendChild(th);
+    });
+    thead.appendChild(trh);
+    t.appendChild(thead);
+    const tbody = document.createElement("tbody");
+    table.rows.forEach(row => {
+      const tr = document.createElement("tr");
+      row.forEach(cell => {
+        const td = document.createElement("td");
+        td.textContent = cell;
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    t.appendChild(tbody);
+    return t;
+  }
+
+  function renderMcqOptions(q, container) {
+    const hasImages = q.options.some(o => o.image);
+    const hasTable = !!q.optionTable;
+
+    if (hasImages) {
+      const grid = document.createElement("div");
+      grid.className = "option-grid";
+      q.options.forEach(opt => {
+        const card = document.createElement("div");
+        card.className = "option-card";
+        if (state.answers[q.id] === opt.key) card.classList.add("selected");
+        card.innerHTML = `<div><strong>(${opt.key})</strong></div>`;
+        if (opt.image) card.appendChild(renderImage(opt.image));
+        const lbl = document.createElement("div");
+        lbl.textContent = opt.label;
+        card.appendChild(lbl);
+        card.addEventListener("click", () => {
+          state.answers[q.id] = opt.key;
+          saveState();
+          renderQuestion();
+        });
+        grid.appendChild(card);
+      });
+      container.appendChild(grid);
+      return;
+    }
+
+    if (hasTable) {
+      const wrap = document.createElement("div");
+      const t = document.createElement("table");
+      t.className = "selectable";
+      const thead = document.createElement("thead");
+      const trh = document.createElement("tr");
+      q.optionTable.headers.forEach(h => {
+        const th = document.createElement("th");
+        th.textContent = h;
+        trh.appendChild(th);
+      });
+      trh.appendChild(document.createElement("th"));
+      thead.appendChild(trh);
+      t.appendChild(thead);
+      const tbody = document.createElement("tbody");
+      q.optionTable.rows.forEach((row, i) => {
+        const key = q.options[i].key;
+        const tr = document.createElement("tr");
+        if (state.answers[q.id] === key) tr.classList.add("selected");
+        row.forEach(cell => {
+          const td = document.createElement("td");
+          td.textContent = cell;
+          tr.appendChild(td);
+        });
+        const radioTd = document.createElement("td");
+        radioTd.className = "radio-cell";
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = `q-${q.id}`;
+        radio.checked = state.answers[q.id] === key;
+        radioTd.appendChild(radio);
+        tr.appendChild(radioTd);
+        tr.addEventListener("click", () => {
+          state.answers[q.id] = key;
+          saveState();
+          renderQuestion();
+        });
+        tbody.appendChild(tr);
+      });
+      t.appendChild(tbody);
+      wrap.appendChild(t);
+      container.appendChild(wrap);
+      return;
+    }
+
+    const list = document.createElement("ul");
+    list.className = "option-list";
+    q.options.forEach(opt => {
+      const li = document.createElement("li");
+      li.className = "option-row";
+      if (state.answers[q.id] === opt.key) li.classList.add("selected");
+      const radio = document.createElement("input");
+      radio.type = "radio";
+      radio.name = `q-${q.id}`;
+      radio.checked = state.answers[q.id] === opt.key;
+      const span = document.createElement("span");
+      span.textContent = `(${opt.key}) ${opt.label}`;
+      li.appendChild(span);
+      li.appendChild(radio);
+      li.addEventListener("click", () => {
+        state.answers[q.id] = opt.key;
+        saveState();
+        renderQuestion();
+      });
+      list.appendChild(li);
+    });
+    container.appendChild(list);
+  }
+
+  function renderStructuredPart(q, part, container) {
+    const block = document.createElement("div");
+    block.className = "part-block";
+
+    const label = document.createElement("div");
+    label.className = "part-label";
+    label.textContent = `(${part.key}) ${part.prompt}`;
+    block.appendChild(label);
+
+    if (part.images) part.images.forEach(src => block.appendChild(renderImage(src)));
+
+    const partKey = `${q.id}${part.key}`;
+
+    if (part.type === "short-text") {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "short-text";
+      input.placeholder = "Type your answer here...";
+      input.value = state.answers[partKey] || "";
+      input.addEventListener("input", () => {
+        state.answers[partKey] = input.value;
+        saveState();
+      });
+      block.appendChild(input);
+    } else if (part.type === "written") {
+      const textarea = document.createElement("textarea");
+      textarea.placeholder = "Type your answer here...";
+      textarea.value = state.answers[partKey] || "";
+      textarea.addEventListener("input", () => {
+        state.answers[partKey] = textarea.value;
+        saveState();
+      });
+      block.appendChild(textarea);
+    }
+
+    container.appendChild(block);
+  }
+
+  function renderQuestion() {
+    const q = QUESTIONS[state.currentIndex];
+    const container = document.getElementById("question-container");
+    container.innerHTML = "";
+
+    const marksTag = document.createElement("span");
+    marksTag.className = "q-marks";
+    marksTag.textContent = `Paper ${q.paper} · Question ${q.id}`;
+    container.appendChild(marksTag);
+
+    const prompt = document.createElement("p");
+    prompt.className = "q-prompt";
+    prompt.textContent = q.prompt;
+    container.appendChild(prompt);
+
+    if (q.images) q.images.forEach(src => container.appendChild(renderImage(src)));
+
+    if (q.body) {
+      const body = document.createElement("p");
+      body.className = "q-body";
+      body.textContent = q.body;
+      container.appendChild(body);
+    }
+
+    if (q.table) container.appendChild(renderRefTable(q.table));
+
+    if (q.body2) {
+      const body2 = document.createElement("p");
+      body2.className = "q-body";
+      body2.textContent = q.body2;
+      container.appendChild(body2);
+    }
+
+    if (q.type === "mcq") {
+      renderMcqOptions(q, container);
+    } else if (q.type === "structured") {
+      q.parts.forEach(part => renderStructuredPart(q, part, container));
+    }
+
+    document.getElementById("progress-label").textContent = `Question ${state.currentIndex + 1} of ${QUESTIONS.length}`;
+    document.getElementById("progress-marks").textContent = `Paper ${q.paper}`;
+    document.getElementById("progress-fill").style.width = `${((state.currentIndex + 1) / QUESTIONS.length) * 100}%`;
+
+    document.getElementById("btn-back").disabled = state.currentIndex === 0;
+    document.getElementById("btn-next").textContent = state.currentIndex === QUESTIONS.length - 1 ? "Review" : "Next";
+  }
+
+  // ---------- Review screen ----------
+
+  function summarizeAnswer(q) {
+    if (q.type === "mcq") {
+      const given = state.answers[q.id];
+      if (!given) return { text: "Not answered", answered: false };
+      const opt = q.options.find(o => o.key === given);
+      return { text: `(${given}) ${opt ? opt.label : ""}`, answered: true };
+    }
+    const parts = q.parts.map(part => {
+      const partKey = `${q.id}${part.key}`;
+      const val = state.answers[partKey];
+      return `(${part.key}) ${val && val.trim ? (val.trim() || "not answered") : "not answered"}`;
+    });
+    const anyAnswered = q.parts.some(part => {
+      const v = state.answers[`${q.id}${part.key}`];
+      return v && v.trim && v.trim();
+    });
+    return { text: parts.join("\n"), answered: anyAnswered };
+  }
+
+  function renderReview() {
+    const list = document.getElementById("review-list");
+    list.innerHTML = "";
+    QUESTIONS.forEach((q, i) => {
+      const item = document.createElement("div");
+      item.className = "review-item";
+      const summary = summarizeAnswer(q);
+      const left = document.createElement("div");
+      const qLabel = document.createElement("div");
+      qLabel.className = "review-q";
+      qLabel.textContent = `Question ${q.id} (Paper ${q.paper})`;
+      const ansLabel = document.createElement("div");
+      ansLabel.className = "review-ans" + (summary.answered ? "" : " unanswered");
+      ansLabel.textContent = summary.text;
+      left.appendChild(qLabel);
+      left.appendChild(ansLabel);
+
+      const btn = document.createElement("button");
+      btn.className = "link-btn";
+      btn.textContent = "Change";
+      btn.addEventListener("click", () => {
+        state.currentIndex = i;
+        saveState();
+        renderQuestion();
+        showScreen("quiz");
+      });
+
+      item.appendChild(left);
+      item.appendChild(btn);
+      list.appendChild(item);
+    });
+  }
+
+  // ---------- Results screen ----------
+
+  function renderMcqReviewCard(q) {
+    const given = state.answers[q.id];
+    const isCorrect = given != null && given === q.correct;
+    const givenOpt = q.options.find(o => o.key === given);
+    const correctOpt = q.options.find(o => o.key === q.correct);
+
+    const item = document.createElement("div");
+    item.className = "qa-review-item " + (isCorrect ? "correct" : "incorrect");
+
+    const head = document.createElement("div");
+    head.className = "qa-review-head";
+    head.innerHTML = `<span>Question ${q.id}</span><span class="qa-badge ${isCorrect ? "correct" : "incorrect"}">${isCorrect ? "Correct" : "Incorrect"}</span>`;
+    item.appendChild(head);
+
+    const yourLine = document.createElement("div");
+    yourLine.className = "qa-line";
+    yourLine.innerHTML = given != null
+      ? `Your answer: <span class="${isCorrect ? "" : "qa-your"}">(${given}) ${escapeHtml(givenOpt ? givenOpt.label : "")}</span>`
+      : `Your answer: <span class="qa-your">Not answered</span>`;
+    item.appendChild(yourLine);
+
+    if (!isCorrect) {
+      const correctLine = document.createElement("div");
+      correctLine.className = "qa-line";
+      correctLine.innerHTML = `Suggested answer: <span class="qa-correct">(${q.correct}) ${escapeHtml(correctOpt ? correctOpt.label : "")}</span>`;
+      item.appendChild(correctLine);
+    }
+
+    if (q.explanation) {
+      const exp = document.createElement("div");
+      exp.className = "qa-explanation";
+      exp.textContent = q.explanation;
+      item.appendChild(exp);
+    }
+    return item;
+  }
+
+  function renderPaper1Review() {
+    const container = document.getElementById("results-section1");
+    container.innerHTML = "";
+    const heading = document.createElement("h3");
+    heading.style.marginBottom = "10px";
+    heading.textContent = "Paper 1 - question by question";
+    container.appendChild(heading);
+    QUESTIONS.forEach(q => {
+      if (q.paper !== 1) return;
+      container.appendChild(renderMcqReviewCard(q));
+    });
+  }
+
+  function renderResults() {
+    const result = scoreTest(state.answers);
+    const summary = document.getElementById("results-summary");
+    summary.innerHTML = "";
+
+    const rows = [
+      { label: "Paper 1 (auto-graded)", score: result.paper1.score, max: result.paper1.max },
+      { label: "Paper 2 (auto-gradable parts)", score: result.paper2.score, max: result.paper2.autoMax }
+    ];
+    rows.forEach(r => {
+      const div = document.createElement("div");
+      div.className = "score-box";
+      div.innerHTML = `<span>${r.label}</span><span>${r.score} / ${r.max}</span>`;
+      summary.appendChild(div);
+    });
+
+    const totalDiv = document.createElement("div");
+    totalDiv.className = "score-box";
+    totalDiv.innerHTML = `<span>Auto-graded total</span><span>${result.total.autoScore} / ${result.total.autoMax}</span>`;
+    summary.appendChild(totalDiv);
+
+    if (result.total.manualMax > 0) {
+      const note = document.createElement("p");
+      note.className = "hint";
+      note.textContent = `${result.total.manualMax} written response(s) in Paper 2 need manual review against the suggested answers below - they aren't auto-graded. This paper has no official school marking scheme, so all suggested answers are for self-review only.`;
+      summary.appendChild(note);
+    }
+
+    renderPaper1Review();
+
+    const written = document.getElementById("results-written");
+    written.innerHTML = "";
+    const heading = document.createElement("h3");
+    heading.textContent = "Paper 2 - your answers vs. suggested answers";
+    written.appendChild(heading);
+
+    QUESTIONS.forEach(q => {
+      if (q.paper !== 2) return;
+      const qWrap = document.createElement("div");
+      qWrap.style.marginBottom = "18px";
+      const qTitle = document.createElement("div");
+      qTitle.className = "part-label";
+      qTitle.textContent = `Question ${q.id}`;
+      qWrap.appendChild(qTitle);
+
+      q.parts.forEach(part => {
+        const partKey = `${q.id}${part.key}`;
+        const val = state.answers[partKey];
+        const box = document.createElement("div");
+        box.style.marginBottom = "12px";
+
+        if (part.type === "short-text") {
+          const ok = isShortTextCorrect(part, val);
+          box.innerHTML = `
+            <div class="hint">(${part.key}) ${escapeHtml(part.prompt)}</div>
+            <div class="model-answer">Your answer: ${escapeHtml(val || "(not answered)")} -
+              <span class="${ok ? "qa-correct" : "qa-your"}" style="font-weight:600;">${ok ? "Correct" : "Incorrect"}</span>
+              ${ok ? "" : ` (suggested: <strong>${escapeHtml(part.correct)}</strong>)`}
+            </div>
+          `;
+        } else {
+          box.innerHTML = `
+            <div class="hint">(${part.key}) ${escapeHtml(part.prompt)}</div>
+            <div class="model-answer">Your answer: ${escapeHtml(val || "(not answered)")}</div>
+            <div class="hint" style="margin-top:6px;">Suggested answer:</div>
+            <div class="model-answer"><strong>${escapeHtml(part.modelAnswer)}</strong></div>
+          `;
+        }
+        qWrap.appendChild(box);
+      });
+      written.appendChild(qWrap);
+    });
+  }
+
+  // ---------- Printable "completed paper" report ----------
+
+  function buildPrintReport() {
+    const target = document.getElementById("print-report");
+    const name = escapeHtml(state.studentName || "(no name given)");
+    const cls = escapeHtml(state.studentClass || "(no class given)");
+    const result = scoreTest(state.answers);
+
+    let html = `
+      <h1 class="print-title">2025 Nanyang P3 Science EOY Exam - Completed Paper</h1>
+      <p class="print-subtitle">Name: ${name} &nbsp;&nbsp;|&nbsp;&nbsp; Class: ${cls} &nbsp;&nbsp;|&nbsp;&nbsp; Printed: ${new Date().toLocaleDateString()}</p>
+      <p class="print-subtitle">Paper 1 auto-graded score: ${result.paper1.score} / ${result.paper1.max} &nbsp;|&nbsp;
+        Paper 2 auto-gradable score: ${result.paper2.score} / ${result.paper2.autoMax} &nbsp;|&nbsp;
+        ${result.total.manualMax} written response(s) need manual review.</p>
+      <p class="print-subtitle" style="font-style:italic;">No official school answer key was available for this paper - all suggested answers/explanations below are generated for self-review.</p>
+    `;
+
+    QUESTIONS.forEach(q => {
+      html += `<div class="print-q">`;
+      html += `<div class="print-q-head">Question ${q.id} (Paper ${q.paper})</div>`;
+      html += `<div>${escapeHtml(q.prompt)}</div>`;
+      if (q.images) q.images.forEach(src => { html += `<img src="${src}">`; });
+      if (q.body) html += `<div style="white-space:pre-line;">${escapeHtml(q.body)}</div>`;
+      if (q.body2) html += `<div style="white-space:pre-line;">${escapeHtml(q.body2)}</div>`;
+
+      if (q.type === "mcq") {
+        const given = state.answers[q.id];
+        const isCorrect = given != null && given === q.correct;
+        const givenOpt = q.options.find(o => o.key === given);
+        const correctOpt = q.options.find(o => o.key === q.correct);
+        html += `<div class="print-answer-line">Your answer: ${given ? `(${given}) ${escapeHtml(givenOpt ? givenOpt.label : "")}` : "Not answered"} - <span class="${isCorrect ? "print-correct" : "print-incorrect"}">${isCorrect ? "Correct" : "Incorrect"}</span></div>`;
+        if (!isCorrect) {
+          html += `<div class="print-answer-line">Suggested answer: <span class="print-correct">(${q.correct}) ${escapeHtml(correctOpt ? correctOpt.label : "")}</span></div>`;
+          if (q.explanation) html += `<div class="print-explanation">${escapeHtml(q.explanation)}</div>`;
+        }
+      } else {
+        q.parts.forEach(part => {
+          const partKey = `${q.id}${part.key}`;
+          const val = state.answers[partKey];
+          html += `<div style="margin-top:6px;"><em>(${part.key}) ${escapeHtml(part.prompt)}</em></div>`;
+          html += `<div class="print-answer-line">Your answer: ${escapeHtml(val || "(not answered)")}</div>`;
+          if (part.type === "short-text") {
+            const ok = isShortTextCorrect(part, val);
+            html += `<div class="print-answer-line"><span class="${ok ? "print-correct" : "print-incorrect"}">${ok ? "Correct" : "Incorrect"}</span>${ok ? "" : ` - suggested: <strong>${escapeHtml(part.correct)}</strong>`}</div>`;
+          } else {
+            html += `<div class="print-explanation">Suggested answer: ${escapeHtml(part.modelAnswer)}</div>`;
+          }
+        });
+      }
+      html += `</div>`;
+    });
+
+    target.innerHTML = html;
+  }
+
+  // ---------- Printable answer key (no student answers) ----------
+
+  function buildPrintAnswerKey() {
+    const target = document.getElementById("print-answerkey");
+    let html = `
+      <h1 class="print-title">2025 Nanyang P3 Science EOY Exam - Answer Key</h1>
+      <p class="print-subtitle">No official school answer key was supplied for this paper. Every answer and explanation below is a suggested solution for self-review, not an authoritative marking scheme.</p>
+    `;
+
+    QUESTIONS.forEach(q => {
+      html += `<div class="print-q">`;
+      html += `<div class="print-q-head">Question ${q.id} (Paper ${q.paper})</div>`;
+      html += `<div>${escapeHtml(q.prompt)}</div>`;
+      if (q.images) q.images.forEach(src => { html += `<img src="${src}">`; });
+      if (q.body) html += `<div style="white-space:pre-line;">${escapeHtml(q.body)}</div>`;
+      if (q.body2) html += `<div style="white-space:pre-line;">${escapeHtml(q.body2)}</div>`;
+
+      if (q.type === "mcq") {
+        const correctOpt = q.options.find(o => o.key === q.correct);
+        html += `<div class="print-answer-line">Suggested answer: <span class="print-correct">(${q.correct}) ${escapeHtml(correctOpt ? correctOpt.label : "")}</span></div>`;
+        if (q.explanation) html += `<div class="print-explanation">${escapeHtml(q.explanation)}</div>`;
+      } else {
+        q.parts.forEach(part => {
+          html += `<div style="margin-top:6px;"><em>(${part.key}) ${escapeHtml(part.prompt)}</em></div>`;
+          if (part.type === "short-text") {
+            html += `<div class="print-answer-line">Suggested answer: <span class="print-correct">${escapeHtml(part.correct)}</span></div>`;
+          } else {
+            html += `<div class="print-explanation">Suggested answer: ${escapeHtml(part.modelAnswer)}</div>`;
+          }
+        });
+      }
+      html += `</div>`;
+    });
+
+    target.innerHTML = html;
+  }
+
+  // ---------- Wiring ----------
+
+  document.getElementById("btn-start").addEventListener("click", () => {
+    state.studentName = document.getElementById("input-name").value.trim();
+    state.studentClass = document.getElementById("input-class").value.trim();
+    state.currentIndex = 0;
+    state.answers = {};
+    saveState();
+    renderQuestion();
+    showScreen("quiz");
+  });
+
+  document.getElementById("btn-resume").addEventListener("click", () => {
+    document.getElementById("input-name").value = state.studentName || "";
+    document.getElementById("input-class").value = state.studentClass || "";
+    renderQuestion();
+    showScreen(state.screen === "start" ? "quiz" : state.screen);
+    if (state.screen === "review") renderReview();
+    if (state.screen === "results") renderResults();
+  });
+
+  document.getElementById("btn-back").addEventListener("click", () => {
+    if (state.currentIndex > 0) {
+      state.currentIndex -= 1;
+      saveState();
+      renderQuestion();
+    }
+  });
+
+  document.getElementById("btn-next").addEventListener("click", () => {
+    if (state.currentIndex < QUESTIONS.length - 1) {
+      state.currentIndex += 1;
+      saveState();
+      renderQuestion();
+    } else {
+      renderReview();
+      showScreen("review");
+    }
+  });
+
+  document.getElementById("btn-review-back").addEventListener("click", () => {
+    renderQuestion();
+    showScreen("quiz");
+  });
+
+  document.getElementById("btn-submit").addEventListener("click", () => {
+    renderResults();
+    showScreen("results");
+  });
+
+  document.getElementById("btn-restart").addEventListener("click", () => {
+    if (!confirm("Restart the test? This will clear all your answers.")) return;
+    state = { studentName: "", studentClass: "", currentIndex: 0, answers: {}, screen: "start" };
+    localStorage.removeItem(STORAGE_KEY);
+    document.getElementById("input-name").value = "";
+    document.getElementById("input-class").value = "";
+    showScreen("start");
+  });
+
+  document.getElementById("btn-print-report").addEventListener("click", () => {
+    buildPrintReport();
+    window.print();
+  });
+
+  function openAnswerKey() {
+    buildPrintAnswerKey();
+    window.print();
+  }
+  document.getElementById("btn-view-key").addEventListener("click", openAnswerKey);
+  document.getElementById("btn-view-key-2").addEventListener("click", openAnswerKey);
+
+  // ---------- Init ----------
+
+  const saved = loadState();
+  if (saved && saved.screen && saved.screen !== "start") {
+    state = Object.assign(state, saved);
+    document.getElementById("btn-resume").hidden = false;
+  }
+})();
+</script>
+</body>
+</html>
