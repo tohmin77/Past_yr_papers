@@ -332,7 +332,26 @@
     color: var(--text-muted);
     margin-top: 4px;
   }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
   [hidden] { display: none !important; }
+
+  /* ---------------- Print styles ---------------- */
+  .print-only { display: none; }
+  @media print {
+    body > .wrap > *:not(.print-only-wrap) { display: none !important; }
+    .print-only-wrap { display: block !important; }
+    .print-only { display: block !important; }
+    .print-q { page-break-inside: avoid; border-bottom: 1px solid #ccc; padding: 10px 0; }
+    .print-q img { max-width: 100%; }
+    .print-title { text-align: center; margin-bottom: 4px; }
+    .print-subtitle { text-align: center; color: #555; margin-bottom: 20px; font-size: 0.9rem; }
+  }
+  .print-q { margin-bottom: 14px; }
+  .print-q-head { font-weight: 700; margin-bottom: 6px; }
+  .print-answer-line { font-size: 0.92rem; margin: 3px 0; }
+  .print-correct { color: #1f9254; font-weight: 600; }
+  .print-incorrect { color: #d1453b; font-weight: 600; }
+  .print-explanation { background: #f4f5f7; border-radius: 6px; padding: 8px 10px; font-size: 0.85rem; margin-top: 6px; }
 </style>
 </head>
 <body>
@@ -382,12 +401,23 @@
   <div id="screen-results" class="card" hidden>
     <h2 style="margin-top:0;">Results</h2>
     <div id="results-summary"></div>
+    <div class="btn-row" style="margin:16px 0;">
+      <button id="btn-download-report">Download my completed paper (PDF)</button>
+      <button id="btn-download-key" class="secondary">Download Answer Key (PDF)</button>
+    </div>
+    <p class="hint">Opens your browser's print dialog - choose "Save as PDF" as the destination.</p>
     <div id="results-section-a" style="margin-top:20px;"></div>
     <div id="results-written" style="margin-top:20px;"></div>
     <div class="nav-row">
       <button id="btn-restart" class="secondary">Restart test</button>
       <span></span>
     </div>
+  </div>
+
+  <!-- Printable areas: hidden on screen, shown only when printing -->
+  <div class="print-only-wrap print-only">
+    <div id="print-report"></div>
+    <div id="print-answerkey"></div>
   </div>
 </div>
 
@@ -867,8 +897,105 @@
 
   function escapeHtml(str) {
     const div = document.createElement("div");
-    div.textContent = str;
+    div.textContent = str == null ? "" : str;
     return div.innerHTML;
+  }
+
+  // ---------- Printable "completed paper" report ----------
+
+  function renderPartAnswerHtml(q, part, withStudentAnswer) {
+    const partKey = `${q.id}${part.key}`;
+    const given = state.answers[partKey];
+    let html = `<div style="margin-top:6px;"><em>(${part.key}) ${escapeHtml(part.prompt)}</em></div>`;
+
+    if (part.type === "material-choice") {
+      part.rows.forEach(row => {
+        const yourChoice = given ? given[row.label] : null;
+        const isCorrect = yourChoice === row.correct;
+        if (withStudentAnswer) {
+          html += `<div class="print-answer-line">${row.label}: ${escapeHtml(yourChoice || "(not answered)")} - <span class="${isCorrect ? "print-correct" : "print-incorrect"}">${isCorrect ? "Correct" : "Incorrect"}</span>${isCorrect ? "" : ` (correct: <strong>${escapeHtml(row.correct)}</strong>)`}</div>`;
+        } else {
+          html += `<div class="print-answer-line">${row.label}: <span class="print-correct">${escapeHtml(row.correct)}</span></div>`;
+        }
+      });
+    } else if (part.type === "checkbox-table") {
+      part.rows.forEach(row => {
+        const yourTick = given ? !!given[row.label] : false;
+        const isCorrect = yourTick === row.correct;
+        if (withStudentAnswer) {
+          html += `<div class="print-answer-line">${row.label}: ${yourTick ? "ticked" : "not ticked"} - <span class="${isCorrect ? "print-correct" : "print-incorrect"}">${isCorrect ? "Correct" : "Incorrect"}</span></div>`;
+        } else {
+          html += `<div class="print-answer-line">${row.label}: <span class="print-correct">${row.correct ? "should be ticked" : "should not be ticked"}</span></div>`;
+        }
+      });
+    } else if (part.type === "written") {
+      if (withStudentAnswer) {
+        html += `<div class="print-answer-line">Your answer: ${escapeHtml(given || "(not answered)")}</div>`;
+      }
+      html += `<div class="print-explanation">Model answer: ${escapeHtml(part.modelAnswer)}</div>`;
+    }
+    return html;
+  }
+
+  function buildQuestionHtml(q, withStudentAnswer) {
+    let html = `<div class="print-q">`;
+    html += `<div class="print-q-head">Question ${q.id} (Section ${q.section})</div>`;
+    html += `<div>${escapeHtml(q.prompt)}</div>`;
+    if (q.images) q.images.forEach(src => { html += `<img src="${src}">`; });
+    if (q.body) html += `<div style="white-space:pre-line;">${escapeHtml(q.body)}</div>`;
+    if (q.images2) q.images2.forEach(src => { html += `<img src="${src}">`; });
+
+    if (q.type === "mcq") {
+      const correctOpt = q.options.find(o => o.key === q.correct);
+      if (withStudentAnswer) {
+        const given = state.answers[q.id];
+        const isCorrect = given != null && given === q.correct;
+        const givenOpt = q.options.find(o => o.key === given);
+        html += `<div class="print-answer-line">Your answer: ${given ? `(${given}) ${escapeHtml(givenOpt ? givenOpt.label : "")}` : "Not answered"} - <span class="${isCorrect ? "print-correct" : "print-incorrect"}">${isCorrect ? "Correct" : "Incorrect"}</span></div>`;
+        if (!isCorrect) {
+          html += `<div class="print-answer-line">Correct answer: <span class="print-correct">(${q.correct}) ${escapeHtml(correctOpt ? correctOpt.label : "")}</span></div>`;
+          if (q.explanation) html += `<div class="print-explanation">${escapeHtml(q.explanation)}</div>`;
+        }
+      } else {
+        html += `<div class="print-answer-line">Correct answer: <span class="print-correct">(${q.correct}) ${escapeHtml(correctOpt ? correctOpt.label : "")}</span></div>`;
+        if (q.explanation) html += `<div class="print-explanation">${escapeHtml(q.explanation)}</div>`;
+      }
+    } else {
+      q.parts.forEach(part => { html += renderPartAnswerHtml(q, part, withStudentAnswer); });
+    }
+    html += `</div>`;
+    return html;
+  }
+
+  function buildPrintReport() {
+    const target = document.getElementById("print-report");
+    const name = escapeHtml(state.studentName || "(no name given)");
+    const cls = escapeHtml(state.studentClass || "(no class given)");
+    const result = scoreTest(state.answers);
+
+    let html = `
+      <h1 class="print-title">St Hilda's P3 Science Term 3 WA - Completed Paper</h1>
+      <p class="print-subtitle">Name: ${name} &nbsp;&nbsp;|&nbsp;&nbsp; Class: ${cls} &nbsp;&nbsp;|&nbsp;&nbsp; Printed: ${new Date().toLocaleDateString()}</p>
+      <p class="print-subtitle">Section A score: ${result.sectionA.score} / ${result.sectionA.max} &nbsp;|&nbsp;
+        Section B auto-graded score: ${result.sectionB.score} / ${result.sectionB.autoMax} &nbsp;|&nbsp;
+        ${result.sectionB.manualMax} written response(s) need manual review.</p>
+    `;
+
+    QUESTIONS.forEach(q => { html += buildQuestionHtml(q, true); });
+    target.innerHTML = html;
+  }
+
+  // ---------- Printable answer key (no student answers) ----------
+
+  function buildPrintAnswerKey() {
+    const target = document.getElementById("print-answerkey");
+    let html = `
+      <h1 class="print-title">St Hilda's P3 Science Term 3 WA - Answer Key</h1>
+      <p class="print-subtitle">Official school answer key, with added explanations for self-review.</p>
+    `;
+
+    QUESTIONS.forEach(q => { html += buildQuestionHtml(q, false); });
+    target.innerHTML = html;
   }
 
   // ---------- Wiring ----------
@@ -928,6 +1055,16 @@
     document.getElementById("input-name").value = "";
     document.getElementById("input-class").value = "";
     showScreen("start");
+  });
+
+  document.getElementById("btn-download-report").addEventListener("click", () => {
+    buildPrintReport();
+    window.print();
+  });
+
+  document.getElementById("btn-download-key").addEventListener("click", () => {
+    buildPrintAnswerKey();
+    window.print();
   });
 
   // ---------- Init ----------

@@ -186,7 +186,6 @@
   .qa-line .qa-your { color: var(--incorrect); }
   .qa-line .qa-correct { color: var(--correct); }
   .qa-explanation { background: var(--bg); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; margin-top: 8px; color: var(--text-muted); }
-  .top-actions { display: flex; justify-content: flex-end; margin-bottom: 10px; }
   [hidden] { display: none !important; }
 
   /* ---------------- Print styles ---------------- */
@@ -214,10 +213,6 @@
     <h1>2025 Nanyang P3 Science EOY Exam</h1>
     <p>Paper 1: 22 MCQs &middot; Paper 2: 9 structured questions</p>
   </header>
-
-  <div class="top-actions">
-    <button class="link" id="btn-view-key">View / Print Answer Key</button>
-  </div>
 
   <div id="screen-start" class="card">
     <div class="field">
@@ -260,9 +255,10 @@
     <h2 style="margin-top:0;">Results</h2>
     <div id="results-summary"></div>
     <div class="btn-row" style="margin:16px 0;">
-      <button id="btn-print-report">Print my completed paper (PDF)</button>
-      <button id="btn-view-key-2" class="secondary">View / Print Answer Key</button>
+      <button id="btn-download-report">Download my completed paper (PDF)</button>
+      <button id="btn-download-key" class="secondary">Download Answer Key (PDF)</button>
     </div>
+    <p class="hint">Opens your browser's print dialog - choose "Save as PDF" as the destination.</p>
     <div id="results-section1" style="margin-top:10px;"></div>
     <div id="results-written" style="margin-top:20px;"></div>
     <div class="nav-row">
@@ -870,17 +866,15 @@
     showScreen("start");
   });
 
-  document.getElementById("btn-print-report").addEventListener("click", () => {
+  document.getElementById("btn-download-report").addEventListener("click", () => {
     buildPrintReport();
     window.print();
   });
 
-  function openAnswerKey() {
+  document.getElementById("btn-download-key").addEventListener("click", () => {
     buildPrintAnswerKey();
     window.print();
-  }
-  document.getElementById("btn-view-key").addEventListener("click", openAnswerKey);
-  document.getElementById("btn-view-key-2").addEventListener("click", openAnswerKey);
+  });
 
   // ---------- Init ----------
 
