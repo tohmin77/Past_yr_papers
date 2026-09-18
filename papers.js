@@ -22,5 +22,15 @@ const PAPERS = [
     description: "End of Year Exam (Think Academy compilation). Paper 1: 22 MCQs. Paper 2: 9 structured questions. No official answer key was supplied - all suggested answers are self-review only.",
     questionCount: 31,
     path: "nanyang-2025/index.html"
+  },
+  {
+    id: "raffles-girls-2025",
+    title: "Raffles Girls' Primary School - P3 Science End of Year Exam (2025)",
+    school: "Raffles Girls' Primary School",
+    level: "Primary 3",
+    subject: "Science",
+    description: "End of Year Exam (Think Academy compilation). Paper 1: 25 MCQs. Paper 2: 11 structured questions. No official answer key was supplied - all suggested answers are self-review only. Two source-material defects (a blank diagram box in Q14, an unticked table in Q34) are called out directly in the app.",
+    questionCount: 36,
+    path: "raffles-girls-2025/index.html"
   }
 ];
