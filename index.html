@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Test Paper Library</title>
+<title>Primary School Test Paper Library</title>
 <style>
   :root {
     --bg: #f4f5f7;
@@ -87,12 +87,22 @@
 <body>
 <div class="wrap">
   <header>
-    <h1>Test Paper Library</h1>
+    <h1>Primary School Test Paper Library</h1>
     <p>Choose a digitized paper below to attempt it.</p>
   </header>
 
   <div class="card">
     <div class="field">
+      <label for="level-select">Level</label>
+      <select id="level-select"></select>
+    </div>
+
+    <div class="field">
+      <label for="subject-select">Subject</label>
+      <select id="subject-select"></select>
+    </div>
+
+    <div class="field" id="paper-field">
       <label for="paper-select">Available papers</label>
       <select id="paper-select"></select>
     </div>
@@ -102,32 +112,62 @@
     <button id="btn-open">Start This Paper</button>
   </div>
 
-  <p class="empty-hint" id="empty-hint" hidden>No papers found. Add an entry to papers.js once a new paper is digitized.</p>
+  <p class="empty-hint" id="empty-hint" hidden></p>
 </div>
 
 <script src="papers.js"></script>
 <script>
 (function () {
-  const select = document.getElementById("paper-select");
+  const LEVELS = ["Primary 3", "Primary 4", "Primary 5", "Primary 6"];
+  const SUBJECTS = ["Science", "Mathematics", "English"];
+
+  const levelSelect = document.getElementById("level-select");
+  const subjectSelect = document.getElementById("subject-select");
+  const paperField = document.getElementById("paper-field");
+  const paperSelect = document.getElementById("paper-select");
   const meta = document.getElementById("paper-meta");
   const btn = document.getElementById("btn-open");
   const emptyHint = document.getElementById("empty-hint");
 
-  if (typeof PAPERS === "undefined" || PAPERS.length === 0) {
-    document.querySelector(".card").hidden = true;
-    emptyHint.hidden = false;
-    return;
-  }
+  const allPapers = typeof PAPERS === "undefined" ? [] : PAPERS;
 
-  PAPERS.forEach((p, i) => {
-    const opt = document.createElement("option");
-    opt.value = i;
-    opt.textContent = p.title;
-    select.appendChild(opt);
+  allPapers.forEach(p => {
+    if (!LEVELS.includes(p.level)) {
+      console.warn(`papers.js: "${p.id}" has level "${p.level}", which isn't one of ${LEVELS.join(", ")}. It won't show up under any Level filter.`);
+    }
+    if (!SUBJECTS.includes(p.subject)) {
+      console.warn(`papers.js: "${p.id}" has subject "${p.subject}", which isn't one of ${SUBJECTS.join(", ")}. It won't show up under any Subject filter.`);
+    }
   });
 
+  LEVELS.forEach(level => {
+    const opt = document.createElement("option");
+    opt.value = level;
+    opt.textContent = level;
+    levelSelect.appendChild(opt);
+  });
+
+  SUBJECTS.forEach(subject => {
+    const opt = document.createElement("option");
+    opt.value = subject;
+    opt.textContent = subject;
+    subjectSelect.appendChild(opt);
+  });
+
+  // Default to the level/subject of the first available paper, so the
+  // library opens on a combination that actually has content.
+  if (allPapers.length) {
+    levelSelect.value = allPapers[0].level;
+    subjectSelect.value = allPapers[0].subject;
+  }
+
+  function papersForSelection() {
+    return allPapers.filter(p => p.level === levelSelect.value && p.subject === subjectSelect.value);
+  }
+
   function renderMeta() {
-    const p = PAPERS[select.value];
+    const p = papersForSelection()[paperSelect.value];
+    if (!p) { meta.innerHTML = ""; return; }
     meta.innerHTML = `
       <div class="school">${p.school}</div>
       <div class="tags">
@@ -139,12 +179,41 @@
     `;
   }
 
-  select.addEventListener("change", renderMeta);
-  renderMeta();
+  function renderPapers() {
+    const matches = papersForSelection();
+    paperSelect.innerHTML = "";
+
+    if (matches.length === 0) {
+      paperField.hidden = true;
+      meta.hidden = true;
+      btn.hidden = true;
+      emptyHint.hidden = false;
+      emptyHint.textContent = `No ${levelSelect.value} ${subjectSelect.value} papers yet. Add an entry to papers.js once one is digitized.`;
+      return;
+    }
+
+    paperField.hidden = false;
+    meta.hidden = false;
+    btn.hidden = false;
+    emptyHint.hidden = true;
+
+    matches.forEach((p, i) => {
+      const opt = document.createElement("option");
+      opt.value = i;
+      opt.textContent = p.title;
+      paperSelect.appendChild(opt);
+    });
+    renderMeta();
+  }
+
+  levelSelect.addEventListener("change", renderPapers);
+  subjectSelect.addEventListener("change", renderPapers);
+  paperSelect.addEventListener("change", renderMeta);
+  renderPapers();
 
   btn.addEventListener("click", () => {
-    const p = PAPERS[select.value];
-    window.location.href = p.path;
+    const p = papersForSelection()[paperSelect.value];
+    if (p) window.location.href = p.path;
   });
 })();
 </script>
