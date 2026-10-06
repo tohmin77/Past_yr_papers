@@ -5,216 +5,63 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Primary School Test Paper Library</title>
 <style>
-  :root {
-    --bg: #f4f5f7;
-    --card-bg: #ffffff;
-    --border: #d8dce1;
-    --text: #1c2126;
-    --text-muted: #5b6470;
-    --accent: #2f6fed;
-    --accent-hover: #2559c7;
-    --radius: 10px;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.5;
-  }
-  .wrap { max-width: 640px; margin: 0 auto; padding: 40px 18px 60px; }
-  header { text-align: center; margin-bottom: 28px; }
-  header h1 { font-size: 1.4rem; margin: 0 0 6px; }
-  header p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
-  .card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 24px;
-  }
-  .field { margin-bottom: 18px; }
-  .field label {
-    display: block;
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    margin-bottom: 6px;
-  }
-  select {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    font-size: 1rem;
-    background: var(--bg);
-    color: var(--text);
-    font-family: inherit;
-  }
-  .paper-meta {
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 14px 16px;
-    margin-bottom: 18px;
-    font-size: 0.9rem;
-  }
-  .paper-meta .school { font-weight: 600; margin-bottom: 4px; }
-  .paper-meta .tags {
-    display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0;
-  }
-  .tag {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 2px 10px;
-  }
-  .paper-meta .desc { color: var(--text-muted); font-size: 0.85rem; margin-top: 8px; }
-  button {
-    font-family: inherit;
-    font-size: 0.95rem;
-    padding: 12px 20px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    background: var(--accent);
-    color: #fff;
-    width: 100%;
-  }
-  button:hover { background: var(--accent-hover); }
-  .empty-hint { color: var(--text-muted); font-size: 0.85rem; text-align: center; margin-top: 20px; }
+  :root { --bg:#f4f5f7; --card:#fff; --border:#d8dce1; --text:#1c2126; --muted:#5b6470; --accent:#2f6fed; --radius:10px; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); line-height:1.5; }
+  .wrap { max-width:920px; margin:0 auto; padding:36px 18px 60px; }
+  header { margin-bottom:24px; } h1 { font-size:1.55rem; margin:0 0 5px; } header p { margin:0; color:var(--muted); }
+  .filters { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px; }
+  label { display:block; font-size:.85rem; color:var(--muted); margin-bottom:5px; }
+  input,select { width:100%; padding:11px 12px; border:1px solid var(--border); border-radius:8px; background:#fff; color:var(--text); font:inherit; }
+  .count { color:var(--muted); font-size:.9rem; margin:8px 0 12px; }
+  .papers { display:grid; gap:12px; }
+  .paper { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:17px 18px; display:flex; justify-content:space-between; align-items:center; gap:20px; }
+  .paper h2 { font-size:1rem; margin:0 0 5px; } .paper p { margin:0; color:var(--muted); font-size:.88rem; }
+  .tags { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:7px; }
+  .tag { border:1px solid var(--border); border-radius:999px; padding:2px 9px; font-size:.75rem; color:var(--muted); }
+  .open { flex:none; display:inline-block; border-radius:8px; padding:10px 15px; background:var(--accent); color:#fff; text-decoration:none; font-weight:600; }
+  .open:hover { background:#2559c7; } a:focus-visible,input:focus-visible,select:focus-visible { outline:3px solid #94b8ff; outline-offset:2px; }
+  .empty { background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:24px; text-align:center; color:var(--muted); }
+  @media(max-width:600px) { .filters { grid-template-columns:1fr; gap:8px; } .paper { align-items:flex-start; flex-direction:column; gap:12px; } .open { width:100%; text-align:center; } }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>Primary School Test Paper Library</h1>
-    <p>Choose a digitized paper below to attempt it.</p>
-  </header>
-
-  <div class="card">
-    <div class="field">
-      <label for="level-select">Level</label>
-      <select id="level-select"></select>
-    </div>
-
-    <div class="field">
-      <label for="subject-select">Subject</label>
-      <select id="subject-select"></select>
-    </div>
-
-    <div class="field" id="paper-field">
-      <label for="paper-select">Available papers</label>
-      <select id="paper-select"></select>
-    </div>
-
-    <div class="paper-meta" id="paper-meta"></div>
-
-    <button id="btn-open">Start This Paper</button>
-  </div>
-
-  <p class="empty-hint" id="empty-hint" hidden></p>
-</div>
-
+<main class="wrap">
+  <header><h1>Primary School Test Paper Library</h1><p>Search and filter digitized papers, then choose one to begin.</p></header>
+  <section class="filters" aria-label="Filter papers">
+    <div><label for="search">Search papers</label><input id="search" type="search" placeholder="School, year, exam type…" autocomplete="off"></div>
+    <div><label for="level">Level</label><select id="level"><option value="">All levels</option></select></div>
+    <div><label for="subject">Subject</label><select id="subject"><option value="">All subjects</option></select></div>
+  </section>
+  <p class="count" id="count" aria-live="polite"></p>
+  <section class="papers" id="papers" aria-label="Available papers"></section>
+</main>
 <script src="papers.js"></script>
 <script>
 (function () {
-  const LEVELS = ["Primary 3", "Primary 4", "Primary 5", "Primary 6"];
-  const SUBJECTS = ["Science", "Mathematics", "English"];
-
-  const levelSelect = document.getElementById("level-select");
-  const subjectSelect = document.getElementById("subject-select");
-  const paperField = document.getElementById("paper-field");
-  const paperSelect = document.getElementById("paper-select");
-  const meta = document.getElementById("paper-meta");
-  const btn = document.getElementById("btn-open");
-  const emptyHint = document.getElementById("empty-hint");
-
   const allPapers = typeof PAPERS === "undefined" ? [] : PAPERS;
-
-  allPapers.forEach(p => {
-    if (!LEVELS.includes(p.level)) {
-      console.warn(`papers.js: "${p.id}" has level "${p.level}", which isn't one of ${LEVELS.join(", ")}. It won't show up under any Level filter.`);
-    }
-    if (!SUBJECTS.includes(p.subject)) {
-      console.warn(`papers.js: "${p.id}" has subject "${p.subject}", which isn't one of ${SUBJECTS.join(", ")}. It won't show up under any Subject filter.`);
-    }
-  });
-
-  LEVELS.forEach(level => {
-    const opt = document.createElement("option");
-    opt.value = level;
-    opt.textContent = level;
-    levelSelect.appendChild(opt);
-  });
-
-  SUBJECTS.forEach(subject => {
-    const opt = document.createElement("option");
-    opt.value = subject;
-    opt.textContent = subject;
-    subjectSelect.appendChild(opt);
-  });
-
-  // Default to the level/subject of the first available paper, so the
-  // library opens on a combination that actually has content.
-  if (allPapers.length) {
-    levelSelect.value = allPapers[0].level;
-    subjectSelect.value = allPapers[0].subject;
-  }
-
-  function papersForSelection() {
-    return allPapers.filter(p => p.level === levelSelect.value && p.subject === subjectSelect.value);
-  }
-
-  function renderMeta() {
-    const p = papersForSelection()[paperSelect.value];
-    if (!p) { meta.innerHTML = ""; return; }
-    meta.innerHTML = `
-      <div class="school">${p.school}</div>
-      <div class="tags">
-        <span class="tag">${p.level}</span>
-        <span class="tag">${p.subject}</span>
-        <span class="tag">${p.questionCount} questions</span>
-      </div>
-      <div class="desc">${p.description}</div>
-    `;
-  }
-
-  function renderPapers() {
-    const matches = papersForSelection();
-    paperSelect.innerHTML = "";
-
-    if (matches.length === 0) {
-      paperField.hidden = true;
-      meta.hidden = true;
-      btn.hidden = true;
-      emptyHint.hidden = false;
-      emptyHint.textContent = `No ${levelSelect.value} ${subjectSelect.value} papers yet. Add an entry to papers.js once one is digitized.`;
-      return;
-    }
-
-    paperField.hidden = false;
-    meta.hidden = false;
-    btn.hidden = false;
-    emptyHint.hidden = true;
-
-    matches.forEach((p, i) => {
-      const opt = document.createElement("option");
-      opt.value = i;
-      opt.textContent = p.title;
-      paperSelect.appendChild(opt);
+  const search = document.getElementById("search"), level = document.getElementById("level"), subject = document.getElementById("subject");
+  const list = document.getElementById("papers"), count = document.getElementById("count");
+  const addOptions = (select, values) => [...new Set(values)].sort().forEach(value => { const o=document.createElement("option"); o.value=value; o.textContent=value; select.appendChild(o); });
+  addOptions(level, allPapers.map(p=>p.level)); addOptions(subject, allPapers.map(p=>p.subject));
+  function render() {
+    const term=search.value.trim().toLowerCase();
+    const matches=allPapers.filter(p=>(!level.value||p.level===level.value)&&(!subject.value||p.subject===subject.value)&&(!term||`${p.title} ${p.school} ${p.description} ${p.level} ${p.subject}`.toLowerCase().includes(term)));
+    count.textContent=`${matches.length} ${matches.length===1?"paper":"papers"} available`;
+    list.replaceChildren();
+    if (!matches.length) { const empty=document.createElement("p"); empty.className="empty"; empty.textContent="No papers match these filters. Try a different search or choose All."; list.appendChild(empty); return; }
+    matches.forEach(p=>{
+      const article=document.createElement("article"); article.className="paper";
+      const info=document.createElement("div"), tags=document.createElement("div"), title=document.createElement("h2"), desc=document.createElement("p"), link=document.createElement("a");
+      tags.className="tags";
+      [p.level,p.subject,`${p.questionCount} questions`].forEach(value=>{const tag=document.createElement("span");tag.className="tag";tag.textContent=value;tags.appendChild(tag);});
+      title.textContent=p.title; desc.textContent=p.description; info.append(tags,title,desc);
+      link.className="open"; link.href=p.path; link.textContent="Start paper"; link.setAttribute("aria-label",`Start ${p.title}`);
+      article.append(info,link); list.appendChild(article);
     });
-    renderMeta();
   }
-
-  levelSelect.addEventListener("change", renderPapers);
-  subjectSelect.addEventListener("change", renderPapers);
-  paperSelect.addEventListener("change", renderMeta);
-  renderPapers();
-
-  btn.addEventListener("click", () => {
-    const p = papersForSelection()[paperSelect.value];
-    if (p) window.location.href = p.path;
-  });
+  [search,level,subject].forEach(el=>el.addEventListener(el===search?"input":"change",render));
+  render();
 })();
 </script>
 </body>

@@ -107,6 +107,11 @@
     overflow: hidden;
     margin-bottom: 20px;
   }
+  .question-nav { display:flex; flex-wrap:wrap; gap:6px; margin:-6px 0 18px; }
+  .question-nav button { width:38px; height:38px; padding:0; border:1px solid var(--border); border-radius:7px; background:#fff; color:var(--text); font-size:.85rem; }
+  .question-nav button.answered { border-color:var(--accent); background:#eaf1ff; }
+  .question-nav button.current { outline:3px solid #94b8ff; outline-offset:1px; font-weight:700; }
+  .question-nav button:focus-visible { outline:3px solid #94b8ff; outline-offset:2px; }
   .progress-bar-fill {
     height: 100%;
     background: var(--accent);
@@ -235,11 +240,12 @@
 
   <div id="screen-quiz" class="card" hidden>
     <div class="progress-row">
-      <span id="progress-label">Question 1 of 31</span>
+      <span id="progress-label" aria-live="polite">Question 1 of 31</span>
       <span id="progress-marks"></span>
     </div>
     <div class="progress-bar"><div class="progress-bar-fill" id="progress-fill"></div></div>
-    <div id="question-container"></div>
+    <nav class="question-nav" id="question-nav" aria-label="Question navigation"></nav>
+    <div id="question-container" aria-live="polite" tabindex="-1"></div>
     <div class="nav-row">
       <button id="btn-back" class="secondary">Back</button>
       <button id="btn-next">Next</button>
@@ -329,7 +335,7 @@
     const img = document.createElement("img");
     img.src = src;
     img.className = "q-image";
-    img.alt = "diagram";
+    img.alt = src.split("/").pop().replace(/\.[^.]+$/, "").replace(/[-_]/g, " ");
     return img;
   }
 
@@ -512,6 +518,27 @@
     container.appendChild(block);
   }
 
+  function renderQuestionNav() {
+    const nav = document.getElementById("question-nav");
+    nav.replaceChildren();
+    QUESTIONS.forEach((q, index) => {
+      const summary = summarizeAnswer(q);
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = String(index + 1);
+      button.className = `${summary.answered ? "answered" : "unanswered"}${index === state.currentIndex ? " current" : ""}`;
+      button.setAttribute("aria-label", `Question ${index + 1}${summary.answered ? ", answered" : ", unanswered"}${index === state.currentIndex ? ", current question" : ""}`);
+      if (index === state.currentIndex) button.setAttribute("aria-current", "step");
+      button.addEventListener("click", () => {
+        state.currentIndex = index;
+        saveState();
+        renderQuestion();
+        document.getElementById("question-container").focus({ preventScroll: true });
+      });
+      nav.appendChild(button);
+    });
+  }
+
   function renderQuestion() {
     const q = QUESTIONS[state.currentIndex];
     const container = document.getElementById("question-container");
@@ -557,6 +584,7 @@
 
     document.getElementById("btn-back").disabled = state.currentIndex === 0;
     document.getElementById("btn-next").textContent = state.currentIndex === QUESTIONS.length - 1 ? "Review" : "Next";
+    renderQuestionNav();
   }
 
   // ---------- Review screen ----------
